@@ -28,10 +28,12 @@ module Search
           fsize = File.stat(p).size
           pdir  = File.dirname(p)
           fname = File.basename(p) 
-          unless redis.exists(fname)
-            redis.rpush(fname, [ Search.md5(fname, fsize), pdir ].to_json)
+          sumname = Search.md5(fname)
+          sumfile = Search.md5(fname, fsize)
+          unless redis.exists("#{sumname}.#{sumfile}")
+            redis.rpush("#{sumname}.#{sumfile}", [ fname, pdir ])
           else 
-            redis.rpush(fname, [ Search.md5(fname, fsize), pdir ].to_json)
+            redis.rpush("#{sumname}.#{sumfile}", [ fname, pdir ])
           end
         end
       end
@@ -39,9 +41,29 @@ module Search
   end
 
   def self.md5(*blob)
-    Digest::MD5::hexdigest(blob.join(','))
+    if blob.class.to_s == 'Array'
+      sum = blob.join(',')
+    else
+      sum = blob
+    end
+    Digest::MD5::hexdigest(sum)
   end
 
-  def self.find_dups
+  def self.find_dups(redis_connection)
+    redis = redis_connection
+    keys = redis.keys('*')
+    keys.each do |k|
+      puts "doing #{k}"
+      length = redis.llen(k)
+      if length > 2
+          puts "creating array"
+          dup = Array.new
+        while length > 0
+          puts "getting #{k}"
+          dup = redis.lpop(k)
+          puts dup
+        end
+      end
+    end
   end  
 end
