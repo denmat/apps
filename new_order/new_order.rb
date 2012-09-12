@@ -1,5 +1,7 @@
 #!/usr/bin/env ruby
 
+# adding text 
+
 $:.unshift(File.expand_path(File.join(File.dirname(__FILE__), "lib")))
 
 # This program sort through file directories and finds matching files
