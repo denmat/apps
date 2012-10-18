@@ -1,0 +1,9 @@
+source "http://rubygems.org"
+gem "json" 
+gem 'net/https'
+gem 'optparse'
+gem 'sinatra'
+gem 'rack-test'
+gem 'redis'
+gem 'rest-client'
+gem 'rspec'
