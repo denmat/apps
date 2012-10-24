@@ -1,15 +1,14 @@
 #!/usr/bin/env ruby
 
-The pd_nagios_object field must be present.
-The NOTIFICATIONTYPE field must be present and must be one of: PROBLEM, ACKNOWLEDGEMENT, RECOVERY, NOP.
-The pd_nagios_object field must be present and must be one of: host, service.dmatotek@dmatotek:~/workspace/projects/apps/jira_api/tmp$ ggrep pd_nagios_object pager_duty_sent_CRIT 
 
 # This script is triggered by cron and grabs the details of the nagios alert and send it to the 
 # local sinatra server.
 
 require 'optparse'
 require 'json'
-require 'rest_client'
+
+include Log
+include PagerDuty
 
 options = {}
 parser = OptionParser.new do |opts|
@@ -29,36 +28,36 @@ def nagios_to_json()
   data = JSON.parse(notification)
 end
 
-def send_restfully(jdata)
-  response = RestClient.post 'http://localhost:4567/trigger', { :data => jdata }, {:content_type => :json, :accept => :json}
+def send_restfully(jdata,problemid,alert_api_key)
+  PagerDuty.send_to_pagerduty(jdata,problemid,alert_api_key)
 end
 
-def filter_results(data)
-
-  "LASTSERVICECHECK": "1350608008",
-  "SERVICEDISPLAYNAME": "RSYSLOG_QSIZE",
-  "LASTSERVICESTATE": "CRITICAL",
-  "LASTSERVICECHECK": "1350608008",
-  "SERVICESTATEID": "2",
-  "SERVICENOTESURL": "https://www.aconex.com/intranet/display/PROD/RSYSLOG_QSIZE+Alert",
-  "SERVICEEVENTID": "1918058",
-  "SERVICENOTIFICATIONNUMBER": "1",
-  "SERVICEPROBLEMID": "933266",
-  "SERVICECHECKCOMMAND": "stale_service_is_critical",
-  "LASTHOSTCHECK": "1350608002"
-  "CONTACTGROUPMEMBERS": "prodoncall,prodtransit,prodlist,pagerduty",
-  "CONTACTNAME": "pagerduty",
-  "HOSTGROUPNAME": "puppet-prod-host",
-  "NOTIFICATIONTYPE": "PROBLEM",
-  "HOSTGROUPNAMES": "puppet-prod-host,ops-linux-hosts,ops-hosts-non-us,lhr-servers,has_vpn,dell-servers",
-  "CONTACTGROUPNAMES": "prod",
-  "MAXHOSTATTEMPTS": "3",
-  "SERVICESTATE": "CRITICAL",
-  "NOTIFICATIONNUMBER": "1",
-  "HOSTNAME": "app1.lhr.acx",
-  "LASTHOSTSTATE": "UP"
-  "LASTSERVICESTATECHANGE": "1350607771",
-  "SERVICEATTEMPT": "15",
-  "SERVICEGROUPNAME": "rsyslog_services",
-  "LASTSERVICEEVENTID": "1918037",
+def filter_alert_results()
+  SERVICEDISPLAYNAME =ENV['SERVICEDISPLAYNAME']
+  LASTSERVICECHECK = ENV["LASTSERVICECHECK"]
+  SERVICEDISPLAYNAME = ENV["SERVICEDISPLAYNAME" ]
+  LASTSERVICESTATE = ENV["LASTSERVICESTATE"]
+  LASTSERVICECHECK = ENV["LASTSERVICECHECK"]
+  SERVICESTATEID = ENV["SERVICESTATEID"]
+  SERVICENOTESURL = ENV["SERVICENOTESURL"]
+  SERVICEEVENTID = ENV["SERVICEEVENTID"]
+  SERVICENOTIFICATIONNUMBER = ENV["SERVICENOTIFICATIONNUMBER"]
+  SERVICEPROBLEMID = ENV["SERVICEPROBLEMID"]
+  SERVICECHECKCOMMAND = ENV["SERVICECHECKCOMMAND"]
+  LASTHOSTCHECK = ENV["LASTHOSTCHECK"]
+  CONTACTGROUPMEMBERS = ENV["CONTACTGROUPMEMBERS"]
+  CONTACTNAME = ENV["CONTACTNAME"]
+  HOSTGROUPNAME = ENV["HOSTGROUPNAME"]
+  NOTIFICATIONTYPE = ENV["NOTIFICATIONTYPE"]
+  HOSTGROUPNAMES = ENV["HOSTGROUPNAMES"]
+  CONTACTGROUPNAMES = ENV["CONTACTGROUPNAMES"]
+  MAXHOSTATTEMPTS = ENV["MAXHOSTATTEMPTS"]
+  SERVICESTATE = ENV["SERVICESTATE"]
+  NOTIFICATIONNUMBER = ENV["NOTIFICATIONNUMBER"]
+  HOSTNAME = ENV["HOSTNAME"]
+  LASTHOSTSTATE = ENV["LASTHOSTSTATE"] 
+  LASTSERVICESTATECHANGE = ENV["LASTSERVICESTATECHANGE"]
+  SERVICEATTEMPT = ENV["SERVICEATTEMPT"]
+  SERVICEGROUPNAME = ENV["SERVICEGROUPNAME"]
+  LASTSERVICEEVENTID = ENV["LASTSERVICEEVENTID"]
 end

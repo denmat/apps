@@ -3,6 +3,8 @@ class Pagerduty
   require 'rest_client'
   require 'json'
 
+  include Log
+
   PAGERDUTY_QUERY_API = "https://s0saconex.pagerduty.com/api/v1/incidents"
   PAGERDUTY_INCIDENTS_API = "https://events.pagerduty.com/generic/2010-04-15/create_event.json"
   # this is not the key that is used to trigger alerts, but used to generally query the API
@@ -28,8 +30,12 @@ class Pagerduty
   #        "someotherdetail": "value"
   #      }
   #   }
-
-    RestClient.post PAGERDUTY_INCIDENTS_API, @jdata, :content_type => :json, :accept => :json
+    Log.info("connecting to #{PAGERDUTY_INCIDENTS_API}")
+    res = RestClient.post PAGERDUTY_INCIDENTS_API, @jdata, :content_type => :json, :accept => :json
+      unless res.match(/Event Processed/)
+        Log.info("Failure to send data to pagerduty: result: #{res}")
+        Log.debug("res: #{res}\n#{@jdata}") if DEBUG
+      end
   end
 
   # this gets the details of the alert via the nagios problemid
