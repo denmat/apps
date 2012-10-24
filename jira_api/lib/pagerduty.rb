@@ -9,7 +9,7 @@ class Pagerduty
   PAGERDUTY_INCIDENTS_API = "https://events.pagerduty.com/generic/2010-04-15/create_event.json"
   # this is not the key that is used to trigger alerts, but used to generally query the API
   PAGERDUTY_QUERY_API_KEY = JSON.parse(File.read('../conf/pagerduty.json'))['PAGERDUTY_QUERY_API_KEY']
-  INCIDENT_QUERY_URL = PAGERDUTY_QUERY_API + ', ' + ':authorization => "Token token=#{PAGERDUTY_QUERY_API_KEY}"'
+  INCIDENT_QUERY_URL = PAGERDUTY_QUERY_API + ', ' + ':authorization => "Token token=#{PAGERDUTY_QUERY_API_KEY}", :content_type => :json, :accept => :json'
 
   def initialize(jdata, problemid, alert_api_key)
     @jdata = jdata
@@ -39,9 +39,9 @@ class Pagerduty
   end
 
   # this gets the details of the alert via the nagios problemid
-  def get_incident_by_problemid
+  def get_incident_by_problemid(problemid)
     # use problemid from nagios as a filter passed as incident_key
-
+    res = RestClient.get INCIDENT_QUERY_URL, :params => {:fields => "#{problemid}"} 
   end
 
   # get a list of ack'd incidents
