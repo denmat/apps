@@ -46,20 +46,20 @@ class Pagerduty
 
   # get a list of ack'd incidents
   def get_ack_incidents
-  # use status of incident as a filter    
-
+  # use status of incident as a filter
+    res = RestClient.get INCIDENT_QUERY_URL, :params => { :status => "acknowledged", :fields => "incident_number" }
   end
 
   # get a list of resolved incidents
   def get_resolved_incidents
   # use status of incident as a filter
+    res = RestClient.get INCIDENT_QUERY_URL, :params => { :status => "resolved", :fields => "incident_number" }
   end
 
   # get a list of current triggered incidents
   def get_triggered_incidents
   # use status of incident as a filter
-
+    res = RestClient.get INCIDENT_QUERY_URL, :params => { :status => "triggered", :fields => "incident_number" }
   end
 
-# create nagios event
 end
