@@ -19,7 +19,7 @@ parser = OptionParser.new do |opts|
   
   
   opts.on('-v', '--verbose', "display verbose messages") do |v|
-    options[:verbose] = v
+    options[results[:verbose]] = v
   end  
 end.parse!
 
@@ -32,32 +32,53 @@ end.parse!
   end
 
   def filter_alert_results()
-    SERVICEDISPLAYNAME =ENV['SERVICEDISPLAYNAME']
-    LASTSERVICECHECK = ENV["LASTSERVICECHECK"]
-    SERVICEDISPLAYNAME = ENV["SERVICEDISPLAYNAME" ]
-    LASTSERVICESTATE = ENV["LASTSERVICESTATE"]
-    LASTSERVICECHECK = ENV["LASTSERVICECHECK"]
-    SERVICESTATEID = ENV["SERVICESTATEID"]
-    SERVICENOTESURL = ENV["SERVICENOTESURL"]
-    SERVICEEVENTID = ENV["SERVICEEVENTID"]
-    SERVICENOTIFICATIONNUMBER = ENV["SERVICENOTIFICATIONNUMBER"]
-    SERVICEPROBLEMID = ENV["SERVICEPROBLEMID"]
-    SERVICECHECKCOMMAND = ENV["SERVICECHECKCOMMAND"]
-    LASTHOSTCHECK = ENV["LASTHOSTCHECK"]
-    CONTACTGROUPMEMBERS = ENV["CONTACTGROUPMEMBERS"]
-    CONTACTNAME = ENV["CONTACTNAME"]
-    HOSTGROUPNAME = ENV["HOSTGROUPNAME"]
-    NOTIFICATIONTYPE = ENV["NOTIFICATIONTYPE"]
-    HOSTGROUPNAMES = ENV["HOSTGROUPNAMES"]
-    CONTACTGROUPNAMES = ENV["CONTACTGROUPNAMES"]
-    MAXHOSTATTEMPTS = ENV["MAXHOSTATTEMPTS"]
-    SERVICESTATE = ENV["SERVICESTATE"]
-    NOTIFICATIONNUMBER = ENV["NOTIFICATIONNUMBER"]
-    HOSTNAME = ENV["HOSTNAME"]
-    LASTHOSTSTATE = ENV["LASTHOSTSTATE"] 
-    LASTSERVICESTATECHANGE = ENV["LASTSERVICESTATECHANGE"]
-    SERVICEATTEMPT = ENV["SERVICEATTEMPT"]
-    SERVICEGROUPNAME = ENV["SERVICEGROUPNAME"]
-    LASTSERVICEEVENTID = ENV["LASTSERVICEEVENTID"]
+    results = Hash.new
+
+    results[:contactpager]  = ENV["CONTACTPAGER"]
+    results[:serviceproblemid]  = ENV["SERVICEPROBLEMID"]
+    results[:serviceoutput]  = ENV["SERVICEOUTPUT"]
+    results[:lastservicecheck]  = ENV["LASTSERVICECHECK"]
+    results[:servicedisplayname]  = ENV["SERVICEDISPLAYNAME" ]
+    results[:lastservicestate]  = ENV["LASTSERVICESTATE"]
+    results[:servicestateid]  = ENV["SERVICESTATEID"]
+    results[:servicenoteurl]  = ENV["SERVICENOTESURL"]
+    results[:servciceeventid]  = ENV["SERVICEEVENTID"]
+    results[:servicenotificationnumber]  = ENV["SERVICENOTIFICATIONNUMBER"]
+    results[:servicecheckcommand]  = ENV["SERVICECHECKCOMMAND"]
+    results[:losthostcheck]  = ENV["LASTHOSTCHECK"]
+    results[:contactgroupmembers]  = ENV["CONTACTGROUPMEMBERS"]
+    results[:contactname]  = ENV["CONTACTNAME"]
+    results[:hostgroupname]  = ENV["HOSTGROUPNAME"]
+    results[:notificationtype]  = ENV["NOTIFICATIONTYPE"]
+    results[:hostgroupnames]  = ENV["HOSTGROUPNAMES"]
+    results[:contactgroupnames]  = ENV["CONTACTGROUPNAMES"]
+    results[:maxhostattempts]  = ENV["MAXHOSTATTEMPTS"]
+    results[:servicestate]  = ENV["SERVICESTATE"]
+    results[:notificationnumber]  = ENV["NOTIFICATIONNUMBER"]
+    results[:hostname]  = ENV["HOSTNAME"]
+    results[:lasthoststate] = ENV["LASTHOSTSTATE"]
+    results[:lastservicechange]  = ENV["LASTSERVICESTATECHANGE"]
+    results[:serviceattempt]  = ENV["SERVICEATTEMPT"]
+    results[:servicegroupname]  = ENV["SERVICEGROUPNAME"]
+    results[:lastserviceeventid]  = ENV["LASTSERVICEEVENTID"]
+
+    return results
   end
+
+  def check_service_alert(results)
+    Log.info('cannot send any pages unless contactpager is provided') unless results[:contactpager] ; exit(1)
+    Log.info('cannot send any pages unless problemid is provided') unless results[:problemid] ; exit(1)
+    Log.info('cannot send any pages unless serviceoutput is provided') unless results[:serviceoutput] ; exit(1)
+    Log.info('cannot send any pages unless servicestate is provided') unless results[:servicestate] ; exit(1)
+  end 
+
+  def check_host_alert(results)
+    Log.info('cannot send any pages unless contactpager is provided') unless results[:contactpager] ; exit(1)
+    Log.info('cannot send any pages unless problemid is provided') unless results[:problemid] ; exit(1)
+    Log.info('cannot send any pages unless hostoutput is provided') unless results[:hostoutput] ; exit(1)
+    Log.info('cannot send any pages unless hoststate is provided') unless results[:hoststate] ; exit(1)
+  end 
+
+
+
 end
