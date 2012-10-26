@@ -7,8 +7,10 @@
 require 'optparse'
 require 'json'
 
-include Log
-include PagerDuty
+$:.unshift(File.expand_path(File.join(File.dirname(__FILE__), "..", "lib")))
+
+require 'log'
+require 'pagerduty'
 
 options = {}
 parser = OptionParser.new do |opts|
@@ -19,7 +21,7 @@ parser = OptionParser.new do |opts|
   
   
   opts.on('-v', '--verbose', "display verbose messages") do |v|
-    options[results[:verbose]] = v
+    options[:verbose] = v
   end  
 end.parse!
 
@@ -66,19 +68,30 @@ end.parse!
   end
 
   def check_service_alert(results)
-    Log.info('cannot send any pages unless contactpager is provided') unless results[:contactpager] ; exit(1)
-    Log.info('cannot send any pages unless problemid is provided') unless results[:problemid] ; exit(1)
-    Log.info('cannot send any pages unless serviceoutput is provided') unless results[:serviceoutput] ; exit(1)
-    Log.info('cannot send any pages unless servicestate is provided') unless results[:servicestate] ; exit(1)
+    Log.info('cannot send any pages unless contactpager is provided') && exit(1) unless results[:contactpager]
+    Log.info('cannot send any pages unless problemid is provided') && exit(1) unless results[:serviceproblemid]
+    Log.info('cannot send any pages unless serviceoutput is provided') && exit(1) unless results[:serviceoutput]
+    Log.info('cannot send any pages unless servicestate is provided') && exit(1) unless results[:servicestate]
   end 
 
   def check_host_alert(results)
-    Log.info('cannot send any pages unless contactpager is provided') unless results[:contactpager] ; exit(1)
-    Log.info('cannot send any pages unless problemid is provided') unless results[:problemid] ; exit(1)
-    Log.info('cannot send any pages unless hostoutput is provided') unless results[:hostoutput] ; exit(1)
-    Log.info('cannot send any pages unless hoststate is provided') unless results[:hoststate] ; exit(1)
+    Log.info('cannot send any pages unless contactpager is provided') && exit(1) unless results[:contactpager]
+    Log.info('cannot send any pages unless problemid is provided') && exit(1) unless results[:hostproblemid]
+    Log.info('cannot send any pages unless hostoutput is provided') && exit(1) unless results[:hostoutput]
+    Log.info('cannot send any pages unless hoststate is provided') && exit(1) unless results[:hoststate]
   end 
 
+alert = filter_alert_results
 
-
+# HOSTPROBLEMID and SERVICEPROBLEMID are zero if they are not a HOST alert or SERVICE alert respectively.
+# So we are going to test on the presence of zero in one, if it is none zero then it must be that type of alert. 
+# We are then going to just set the 'problemid' to one of them. 
+if alert[:hostproblemid] == 0 
+  check_host_alert(alert)
+  alert[:problemid] = alert[:hostproblemid]
+  puts "this is alertid: " + alert[:problemid]
+else
+  check_service_alert(alert)
+  alert[:problemid] = alert[:serviceproblemid]
+  puts "this is alertid: " + alert[:problemid]
 end

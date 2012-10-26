@@ -8,7 +8,8 @@ class Pagerduty
   PAGERDUTY_QUERY_API = "https://s0saconex.pagerduty.com/api/v1/incidents"
   PAGERDUTY_INCIDENTS_API = "https://events.pagerduty.com/generic/2010-04-15/create_event.json"
   # this is not the key that is used to trigger alerts, but used to generally query the API
-  PAGERDUTY_QUERY_API_KEY = JSON.parse(File.read('../conf/pagerduty.json'))['PAGERDUTY_QUERY_API_KEY']
+  CONF_DIR = File.expand_path(File.join(File.dirname(__FILE__), "..", "conf"))
+  PAGERDUTY_QUERY_API_KEY = JSON.parse(File.read(CONF_DIR + '/pagerduty.json'))['PAGERDUTY_QUERY_API_KEY']
   INCIDENT_QUERY_URL = PAGERDUTY_QUERY_API + ', ' + ':authorization => "Token token=#{PAGERDUTY_QUERY_API_KEY}", :content_type => :json, :accept => :json'
 
   def initialize(jdata, problemid, alert_api_key)
