@@ -1,3 +1,32 @@
 {
-  "PAGERDUTY_QUERY_API_KEY": "removed"
+  "PAGERDUTY_QUERY_API_KEY": "removed",
+  "nagios_fields": [ 
+    "contactpager",
+    "serviceproblemid",
+    "serviceoutput",
+    "lastservicecheck",
+    "servicedisplayname",
+    "lastservicestate",
+    "servicestateid",
+    "servicenoteurl",
+    "servciceeventid",
+    "servicenotificationnumber",
+    "servicecheckcommand",
+    "losthostcheck",
+    "contactgroupmembers",
+    "contactname",
+    "hostgroupname",
+    "notificationtype",
+    "hostgroupnames",
+    "contactgroupnames",
+    "maxhostattempts",
+    "servicestate",
+    "notificationnumber",
+    "hostname",
+    "lasthoststate",
+    "lastservicechange",
+    "serviceattempt",
+    "servicegroupname",
+    "lastserviceeventid"
+  ]
 }

@@ -12,6 +12,8 @@ $:.unshift(File.expand_path(File.join(File.dirname(__FILE__), "..", "lib")))
 require 'log'
 require 'pagerduty'
 
+CONF_DIR = File.expand_path(File.join(File.dirname(__FILE__), '..', "conf"))
+
 options = {}
 parser = OptionParser.new do |opts|
   opts.banner = "Usage: #{$0} [options]"
@@ -32,39 +34,22 @@ end.parse!
   def send_restfully(jdata,problemid,alert_api_key)
     PagerDuty.send_to_pagerduty(jdata,problemid,alert_api_key)
   end
+    results = Hash.new
 
   def filter_alert_results()
     results = Hash.new
+    wanted_fields = JSON.parse(File.read(CONF_DIR + '/pagerduty.json'))
 
-    results[:contactpager]  = ENV["CONTACTPAGER"]
-    results[:serviceproblemid]  = ENV["SERVICEPROBLEMID"]
-    results[:serviceoutput]  = ENV["SERVICEOUTPUT"]
-    results[:lastservicecheck]  = ENV["LASTSERVICECHECK"]
-    results[:servicedisplayname]  = ENV["SERVICEDISPLAYNAME" ]
-    results[:lastservicestate]  = ENV["LASTSERVICESTATE"]
-    results[:servicestateid]  = ENV["SERVICESTATEID"]
-    results[:servicenoteurl]  = ENV["SERVICENOTESURL"]
-    results[:servciceeventid]  = ENV["SERVICEEVENTID"]
-    results[:servicenotificationnumber]  = ENV["SERVICENOTIFICATIONNUMBER"]
-    results[:servicecheckcommand]  = ENV["SERVICECHECKCOMMAND"]
-    results[:losthostcheck]  = ENV["LASTHOSTCHECK"]
-    results[:contactgroupmembers]  = ENV["CONTACTGROUPMEMBERS"]
-    results[:contactname]  = ENV["CONTACTNAME"]
-    results[:hostgroupname]  = ENV["HOSTGROUPNAME"]
-    results[:notificationtype]  = ENV["NOTIFICATIONTYPE"]
-    results[:hostgroupnames]  = ENV["HOSTGROUPNAMES"]
-    results[:contactgroupnames]  = ENV["CONTACTGROUPNAMES"]
-    results[:maxhostattempts]  = ENV["MAXHOSTATTEMPTS"]
-    results[:servicestate]  = ENV["SERVICESTATE"]
-    results[:notificationnumber]  = ENV["NOTIFICATIONNUMBER"]
-    results[:hostname]  = ENV["HOSTNAME"]
-    results[:lasthoststate] = ENV["LASTHOSTSTATE"]
-    results[:lastservicechange]  = ENV["LASTSERVICESTATECHANGE"]
-    results[:serviceattempt]  = ENV["SERVICEATTEMPT"]
-    results[:servicegroupname]  = ENV["SERVICEGROUPNAME"]
-    results[:lastserviceeventid]  = ENV["LASTSERVICEEVENTID"]
+    wanted_fields['nagios_fields'].each do |a|
+      Log.info("doing #{a}".upcase)
+      unless ENV["#{a}".upcase].empty? 
+        results[:"#{a}"] = ENV["#{a}".upcase]
+      end
+      Log.info("done: " + results[:"#{a}"])
+    end
 
     return results
+
   end
 
   def check_service_alert(results)
@@ -89,9 +74,10 @@ alert = filter_alert_results
 if alert[:hostproblemid] == 0 
   check_host_alert(alert)
   alert[:problemid] = alert[:hostproblemid]
-  puts "this is alertid: " + alert[:problemid]
+  Log.info("this is alertid: " + alert[:problemid])
 else
   check_service_alert(alert)
   alert[:problemid] = alert[:serviceproblemid]
-  puts "this is alertid: " + alert[:problemid]
+  Log.info("this is alertid: " + alert[:problemid])
 end
+
