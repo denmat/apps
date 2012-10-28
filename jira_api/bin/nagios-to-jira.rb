@@ -42,7 +42,7 @@ end.parse!
 
     wanted_fields['nagios_fields'].each do |a|
       Log.info("doing #{a}".upcase)
-      unless ENV["#{a}".upcase].empty? 
+      unless ENV["#{a}".upcase].empty?
         results[:"#{a}"] = ENV["#{a}".upcase]
       end
       Log.info("done: " + results[:"#{a}"])
