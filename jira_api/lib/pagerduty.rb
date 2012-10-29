@@ -1,25 +1,26 @@
-class Pagerduty
+module Pagerduty
 
   require 'rest_client'
   require 'json'
 
   include Log
 
-  PAGERDUTY_QUERY_API = "https://s0saconex.pagerduty.com/api/v1/incidents"
-  PAGERDUTY_INCIDENTS_API = "https://events.pagerduty.com/generic/2010-04-15/create_event.json"
-  # this is not the key that is used to trigger alerts, but used to generally query the API
   CONF_DIR = File.expand_path(File.join(File.dirname(__FILE__), "..", "conf"))
-  PAGERDUTY_QUERY_API_KEY = JSON.parse(File.read(CONF_DIR + '/pagerduty.json'))['PAGERDUTY_QUERY_API_KEY']
+  CONFIG = JSON.parse(File.read(CONF_DIR + '/pagerduty.json'))
+  PAGERDUTY_QUERY_API_KEY = CONFIG['PAGERDUTY_QUERY_API_KEY']
+  PAGERDUTY_QUERY_API = CONFIG['PAGERDUTY_QUERY_API']
+  PAGERDUTY_INCIDENTS_API = CONFIG['PAGERDUTY_INCIDENTS_API']
+  # this is not the key that is used to trigger alerts, but used to generally query the API
   INCIDENT_QUERY_URL = PAGERDUTY_QUERY_API + ', ' + ':authorization => "Token token=#{PAGERDUTY_QUERY_API_KEY}", :content_type => :json, :accept => :json'
 
-  def initialize(jdata, problemid, alert_api_key)
-    @jdata = jdata
-    @problemid = problemid
-    @alert_api_key = alert_api_key
-  end
+#  def initialize(jdata, problemid, alert_api_key)
+#    @jdata = jdata
+#    @problemid = problemid
+#    @alert_api_key = alert_api_key
+#  end
 
   # this triggers and updates the alerts from nagios -> pagerduty
-  def send_to_pagerduty
+  def send_to_pagerduty(alert)
   # This creates and updates alerts from nagios.
   # It requires the following json data (at a minimum):
   #   {
@@ -31,12 +32,23 @@ class Pagerduty
   #        "someotherdetail": "value"
   #      }
   #   }
+
+
+    @jdata = alert.to_json
+    Log.info("going to send: #{JSON.pretty_generate(JSON.parse(@jdata))}") if VERBOSE
     Log.info("connecting to #{PAGERDUTY_INCIDENTS_API}")
+
     res = RestClient.post PAGERDUTY_INCIDENTS_API, @jdata, :content_type => :json, :accept => :json
-      unless res.match(/Event Processed/)
-        Log.info("Failure to send data to pagerduty: result: #{res}")
-        Log.debug("res: #{res}\n#{@jdata}") if DEBUG
-      end
+    result = JSON.parse(res)
+    unless result['status'] == 'success'
+      Log.fatal("Failure to send data to pagerduty, result: #{result['status']}")
+      Log.fatal("Message response: #{result['message']}")
+      fail("Could not send to Pagerduty, result: #{result['status']}")
+    else 
+      Log.info("Pagerduty status: #{result['status']}")
+      Log.info("Pagerduty incident_key: #{result['incident_key']}")
+      Log.info("Pagerduty message: #{result['message']}") if VERBOSE
+    end
   end
 
   # this gets the details of the alert via the nagios problemid

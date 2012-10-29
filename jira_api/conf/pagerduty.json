@@ -1,5 +1,8 @@
 {
   "PAGERDUTY_QUERY_API_KEY": "removed",
+  "PAGERDUTY_QUERY_API": "https://s0saconex.pagerduty.com/api/v1/incidents",
+  "PAGERDUTY_INCIDENTS_API": "https://events.pagerduty.com/generic/2010-04-15/create_event.json",
+
   "nagios_fields": [ 
     "contactpager",
     "servicestate",

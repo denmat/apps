@@ -12,6 +12,10 @@ module Log
     @log.warn(msg)
   end
 
+  def self.fatal(msg)
+    @log.fatal(msg)
+  end
+  
   def self.debug(msg)
     @log.debug(msg)
   end
