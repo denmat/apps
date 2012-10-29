@@ -11,9 +11,11 @@ $:.unshift(File.expand_path(File.join(File.dirname(__FILE__), "..", "lib")))
 
 require 'log'
 require 'pagerduty'
+require 'shorturl'
 
 include Log
 include Pagerduty
+include Shorturl
 
 CONF_DIR = File.expand_path(File.join(File.dirname(__FILE__), '..', "conf"))
 
@@ -116,23 +118,35 @@ else
   alert[:incident_key] = results[:serviceproblemid]
   Log.info("this is alertid: " + alert[:incident_key])
   alert[:service_key] = results[:contactpager]
-  alert[:description] = results[:serviceoutput]
+  alert[:description] = [ results[:servicedisplayname], results[:serviceoutput] ]
   Log.info("notificationtype = #{results[:notificationtype]}") if VERBOSE
   case 
   when results[:notificationtype].match(/PROBLEM/) && results[:servicestate].match(/CRITICAL/)
     alert[:event_type] = 'trigger'
+    if results[:servicenotesurl]
+      Log.info('generating a shorter url via google shortenURL api')
+      url = results[:servicenotesurl]
+      smaller_url = Shorturl.get_url(url)
+      Log.info("smaller url is: #{smaller_url}") if VERBOSE
+      alert[:description] << smaller_url
+    end
     Log.info("event_type = #{alert[:event_type]}") if VERBOSE
   when results[:notificationtype].match(/ACKNOWLEDGEMENT/) && results[:servicestate].match(/CRITICAL/)
     alert[:event_type] = 'acknowledge'
     Log.info("event_type = #{alert[:event_type]}") if VERBOSE
+    alert[:description].unshift("ACK")
   when results[:notificationtype].match(/RECOVERY/) && results[:servicestate].match(/OK/)
     alert[:event_type] = 'resolve'
     Log.info("event_type = #{alert[:event_type]}") if VERBOSE
+    alert[:description].unshift("OK")
   else
     Log.fatal('no event_type detected!')
     Log.info("notificationtype = #{results[:notificationtype]}, servicestate = #{results[:servicestate]}")
     fail ("no event_type detected!")
   end
+  alert[:description].unshift(results[:hostname])
+  # convert the description array into a string to save space in the message.
+  alert[:description] = alert[:description].join(" ")
   alert[:details] = results
   Log.info("this is alertid: " + alert[:incident_key])
 end

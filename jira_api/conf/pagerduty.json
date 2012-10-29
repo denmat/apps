@@ -2,6 +2,7 @@
   "PAGERDUTY_QUERY_API_KEY": "removed",
   "PAGERDUTY_QUERY_API": "https://s0saconex.pagerduty.com/api/v1/incidents",
   "PAGERDUTY_INCIDENTS_API": "https://events.pagerduty.com/generic/2010-04-15/create_event.json",
+  "GOOGLE_URL_SHORTNER": "https://www.googleapis.com/urlshortener/v1/url",
 
   "nagios_fields": [ 
     "contactpager",
@@ -20,6 +21,7 @@
     "servicedowntime",
     "hostdisplayname",
     "hoststateid",
+    "hostname",
     "lasthostcheck",
     "hostgroupname",
     "notificationtype",
