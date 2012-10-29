@@ -118,7 +118,7 @@ else
   alert[:incident_key] = results[:serviceproblemid]
   Log.info("this is alertid: " + alert[:incident_key])
   alert[:service_key] = results[:contactpager]
-  alert[:description] = [ results[:servicedisplayname], results[:serviceoutput] ]
+  alert[:description] = [ results[:servicedisplayname] ]
   Log.info("notificationtype = #{results[:notificationtype]}") if VERBOSE
   case 
   when results[:notificationtype].match(/PROBLEM/) && results[:servicestate].match(/CRITICAL/)
@@ -145,6 +145,8 @@ else
     fail ("no event_type detected!")
   end
   alert[:description].unshift(results[:hostname])
+  # and now append the variable text for the error message to the end of the alert description
+  alert[:description] << results[:serviceoutput]
   # convert the description array into a string to save space in the message.
   alert[:description] = alert[:description].join(" ")
   alert[:details] = results
