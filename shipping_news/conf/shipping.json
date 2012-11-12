@@ -1,0 +1,11 @@
+{
+  "shipping_dir": "/tmp/testing",
+  "instance": {
+    "au1": {
+      "priority": "1"
+    },
+    "hk1": {
+      "priority": "5"
+    }
+  }
+}
